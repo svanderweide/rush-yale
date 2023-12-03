@@ -1,9 +1,7 @@
-use actix_web::{get, App, HttpResponse, HttpServer};
+use actix_web::{App, HttpServer};
 
-#[get("/health-check")]
-async fn health_check() -> HttpResponse {
-    HttpResponse::Ok().finish()
-}
+mod handlers;
+use handlers::health_check;
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
