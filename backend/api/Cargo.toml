@@ -6,6 +6,7 @@ authors = ["Simon Van Der Weide <smvanderweide17@gmail.com>"]
 publish = false
 
 [dependencies]
+rush-yale-service = { path = "../service" }
 actix-identity = "0.6.0"
 actix-web = { version = "4.4.0", features = ["rustls-0_21"] }
 actix-session = { version = "0.8.0", features = ["cookie-session"] }
