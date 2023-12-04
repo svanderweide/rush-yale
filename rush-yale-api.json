@@ -406,7 +406,7 @@
   },
   "info": {
     "title": "Rush Yale API",
-    "version": "1.0"
+    "version": "1.0.1"
   },
   "openapi": "3.0.2",
   "paths": {
@@ -701,6 +701,15 @@
       ],
       "post": {
         "operationId": "Organization.CreateUserStatus",
+        "requestBody": {
+          "content": {
+            "application/x-www-form-urlencoded": {
+              "schema": {
+                "$ref": "#/components/schemas/Status"
+              }
+            }
+          }
+        },
         "responses": {
           "200": {
             "content": {
@@ -716,7 +725,7 @@
             "$ref": "#/components/responses/errorResponse"
           }
         },
-        "summary": "Creates default status for user {usr_id} with organization {org_id}."
+        "summary": "Creates status for user {usr_id} with organization {org_id}."
       },
       "put": {
         "operationId": "Organization.UpdateUserStatus",
