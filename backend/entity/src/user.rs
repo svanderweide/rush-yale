@@ -10,6 +10,7 @@ pub struct Model {
     #[serde(skip_deserializing)]
     pub id: i32,
     #[sea_orm(unique)]
+    #[serde(skip_deserializing)]
     pub netid: String,
     pub first_name: String,
     pub last_name: String,
