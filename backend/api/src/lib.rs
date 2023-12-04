@@ -2,7 +2,7 @@ use actix_web::{App, HttpServer};
 use rush_yale_service::sea_orm::{Database, DatabaseConnection};
 
 mod handlers;
-use handlers::health_check;
+use handlers::config;
 
 mod tls;
 use tls::load_rustls_config;
@@ -28,7 +28,7 @@ async fn serve() -> std::io::Result<()> {
     let rustls_config = load_rustls_config();
 
     // serve backend
-    HttpServer::new(move || App::new().app_data(state.clone()).service(health_check))
+    HttpServer::new(move || App::new().app_data(state.clone()).configure(config))
         .bind_rustls_021(("127.0.0.1", 8000), rustls_config)?
         .run()
         .await
