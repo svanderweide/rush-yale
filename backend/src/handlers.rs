@@ -1,7 +1,12 @@
-use actix_web::web::ServiceConfig;
+use actix_web::web::{scope, ServiceConfig};
 
 pub fn config(cfg: &mut ServiceConfig) {
-    cfg.service(routes::health_check);
+    cfg.service(routes::health_check)
+        .service(scope("/api").configure(api_config));
+}
+
+pub fn api_config(cfg: &mut ServiceConfig) {
+    cfg.service(routes::user_get_all_ids);
 }
 
 mod routes {

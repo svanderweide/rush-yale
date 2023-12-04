@@ -1,9 +1,0 @@
-[package]
-name = "entity"
-version = "0.1.0"
-edition = "2021"
-publish = false
-
-[dependencies]
-sea-orm = "0.12.8"
-serde = { version = "1", features = ["derive"] }
