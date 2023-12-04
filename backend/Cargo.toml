@@ -2,15 +2,13 @@
 name = "rush-yale-backend"
 version = "0.1.0"
 edition = "2021"
+authors = ["Simon Van Der Weide <smvanderweide17@gmail.com>"]
+publish = false
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[workspace]
+members = [".", "api", "entity"]
+
 [dependencies]
-actix-identity = "0.6.0"
-actix-web = { version = "4.4.0", features = ["rustls-0_21"] }
-actix-session = { version = "0.8.0", features = ["cookie-session"] }
-dotenvy = "0.15.7"
-serde = { version = "1.0.193", features = ["derive"] }
-rustls = "0.21.9"
-rustls-pemfile = "1.0.4"
-reqwest = { version = "0.11.22", default-features = false, features = ["rustls-tls"] }
+rust-yale-api = { path = "api" }
