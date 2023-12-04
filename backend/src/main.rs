@@ -2,13 +2,12 @@ use actix_web::{App, HttpServer};
 use sea_orm::{Database, DatabaseConnection};
 
 mod handlers;
-use handlers::config;
-
-mod tls;
-use tls::load_rustls_config;
-
 mod models;
 mod service;
+mod tls;
+
+use handlers::config;
+use tls::load_rustls_config;
 
 #[derive(Debug, Clone)]
 struct AppState {
