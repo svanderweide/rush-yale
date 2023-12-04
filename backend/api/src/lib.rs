@@ -9,7 +9,7 @@ use tls::load_rustls_config;
 
 #[derive(Debug, Clone)]
 struct AppState {
-    _conn: DatabaseConnection,
+    conn: DatabaseConnection,
 }
 
 #[actix_web::main]
@@ -19,10 +19,10 @@ async fn serve() -> std::io::Result<()> {
     let db_url = std::env::var("DATABASE_URL").expect("'DATABASE_URL' should be set in .env file'");
 
     // set up database connection
-    let _conn = Database::connect(&db_url).await.unwrap();
+    let conn = Database::connect(&db_url).await.unwrap();
 
     // create app state
-    let state = AppState { _conn };
+    let state = AppState { conn };
 
     // set up TLS
     let rustls_config = load_rustls_config();
