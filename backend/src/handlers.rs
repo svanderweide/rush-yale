@@ -1,12 +1,53 @@
-use crate::{models::event, service::*, AppState};
+use actix_identity::Identity;
 use actix_web::{
     get, post, put,
-    web::{Data, Form, Json, Path},
-    HttpResponse,
+    web::{Data, Form, Json, Path, Query, Redirect},
+    HttpMessage, HttpRequest, HttpResponse,
 };
+use serde::Deserialize;
 
 #[get("/health-check")]
 async fn health_check() -> HttpResponse {
+    HttpResponse::Ok().finish()
+}
+
+#[derive(Deserialize)]
+struct AuthResource {
+    ticket: Option<String>,
+}
+
+#[get("/login")]
+async fn login(req: HttpRequest, data: Data<AppState>, auth: Query<AuthResource>) -> Redirect {
+    let auth = auth.into_inner();
+    match auth.ticket {
+        None => {
+            // CAS authentication
+            Redirect::to(format!(
+                "https://secure6.its.yale.edu/cas/login?service=https://{}/login",
+                &data.base_url
+            ))
+        }
+        Some(ticket) => {
+            // CAS authentication
+            let cas_url = format!(
+                "https://secure6.its.yale.edu/cas/validate?service=https://{}/login&ticket={}",
+                &data.base_url, ticket
+            );
+            let body = reqwest::get(cas_url).await.unwrap().text().await.unwrap();
+            if body.contains("yes") {
+                // authorized!
+                Identity::login(&req.extensions(), "netid".to_string()).unwrap();
+                Redirect::to("/health-check")
+            } else {
+                Redirect::to("/login")
+            }
+        }
+    }
+}
+
+#[get("/logout")]
+async fn logout(user: Identity) -> HttpResponse {
+    user.logout();
     HttpResponse::Ok().finish()
 }
 
