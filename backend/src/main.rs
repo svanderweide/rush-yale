@@ -6,7 +6,7 @@ mod models;
 mod service;
 mod tls;
 
-use handlers::config;
+use handlers::*;
 use tls::load_rustls_config;
 
 #[derive(Debug, Clone)]
@@ -30,7 +30,7 @@ async fn main() -> std::io::Result<()> {
     let rustls_config = load_rustls_config();
 
     // serve backend
-    HttpServer::new(move || App::new().app_data(state.clone()).configure(config))
+    HttpServer::new(move || App::new().service(health_check))
         .bind_rustls_021(("127.0.0.1", 8000), rustls_config)?
         .run()
         .await
