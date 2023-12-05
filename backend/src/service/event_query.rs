@@ -19,7 +19,7 @@ pub struct EventWithHosts {
 pub struct NewEventWithHosts {
     #[serde(flatten)]
     event: event::Model,
-    hosts: String,
+    hosts: Vec<i32>,
 }
 
 impl EventQuery {
@@ -32,28 +32,22 @@ impl EventQuery {
             .await
     }
 
-    pub async fn create(db: &DbConn, form: NewEventWithHosts) -> Result<EventWithHosts, DbErr> {
+    pub async fn create(db: &DbConn, json: NewEventWithHosts) -> Result<EventWithHosts, DbErr> {
         // begin transaction
         let txn = db.begin().await?;
         // create event!
         let event = event::ActiveModel {
-            name: Set(form.event.name.to_owned()),
-            description: Set(form.event.description.to_owned()),
-            location: Set(form.event.location.to_owned()),
-            start_time: Set(form.event.start_time.to_owned()),
-            end_time: Set(form.event.end_time.to_owned()),
+            name: Set(json.event.name.to_owned()),
+            description: Set(json.event.description.to_owned()),
+            location: Set(json.event.location.to_owned()),
+            start_time: Set(json.event.start_time.to_owned()),
+            end_time: Set(json.event.end_time.to_owned()),
             ..Default::default()
         }
         .insert(&txn)
         .await?;
-        // parse hosts from FormData (JSON would be better here)
-        let hosts: Vec<i32> = form
-            .hosts
-            .split(",")
-            .map(|id| id.parse::<i32>().unwrap())
-            .collect();
         // add hosts!
-        EventOrganization::insert_many(hosts.into_iter().map(|id| {
+        EventOrganization::insert_many(json.hosts.into_iter().map(|id| {
             event_organization::ActiveModel {
                 event_id: Set(event.id),
                 organization_id: Set(id),
@@ -76,7 +70,7 @@ impl EventQuery {
     pub async fn update(
         db: &DbConn,
         id: i32,
-        form: NewEventWithHosts,
+        json: NewEventWithHosts,
     ) -> Result<EventWithHosts, DbErr> {
         // get event and hosts
         let stored = EventQuery::get(&db, id).await?;
@@ -86,11 +80,11 @@ impl EventQuery {
         // update event!
         let event = event::ActiveModel {
             id: Unchanged(event.id),
-            name: Set(form.event.name.to_owned()),
-            description: Set(form.event.description.to_owned()),
-            location: Set(form.event.location.to_owned()),
-            start_time: Set(form.event.start_time.to_owned()),
-            end_time: Set(form.event.end_time.to_owned()),
+            name: Set(json.event.name.to_owned()),
+            description: Set(json.event.description.to_owned()),
+            location: Set(json.event.location.to_owned()),
+            start_time: Set(json.event.start_time.to_owned()),
+            end_time: Set(json.event.end_time.to_owned()),
         }
         .update(&txn)
         .await?;
@@ -99,14 +93,8 @@ impl EventQuery {
             .filter(event_organization::Column::EventId.eq(event.id))
             .exec(&txn)
             .await?;
-        // parse hosts from FormData (JSON would be better here)
-        let hosts: Vec<i32> = form
-            .hosts
-            .split(",")
-            .map(|id| id.parse::<i32>().unwrap())
-            .collect();
         // add new hosts!
-        EventOrganization::insert_many(hosts.into_iter().map(|id| {
+        EventOrganization::insert_many(json.hosts.into_iter().map(|id| {
             event_organization::ActiveModel {
                 event_id: Set(event.id),
                 organization_id: Set(id),

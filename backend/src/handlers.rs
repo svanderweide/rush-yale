@@ -17,10 +17,10 @@ async fn event_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
 }
 
 #[post("/events")]
-async fn event_create(data: Data<AppState>, form: Form<NewEventWithHosts>) -> Json<EventWithHosts> {
+async fn event_create(data: Data<AppState>, json: Json<NewEventWithHosts>) -> Json<EventWithHosts> {
     let conn = &data.conn;
-    let form = form.into_inner();
-    Json(EventQuery::create(&conn, form).await.unwrap())
+    let json = json.into_inner();
+    Json(EventQuery::create(&conn, json).await.unwrap())
 }
 
 #[get("/events/{id}")]
@@ -34,12 +34,12 @@ async fn event_get(data: Data<AppState>, id: Path<i32>) -> Json<EventWithHosts> 
 async fn event_update(
     data: Data<AppState>,
     id: Path<i32>,
-    form: Form<NewEventWithHosts>,
+    json: Json<NewEventWithHosts>,
 ) -> Json<EventWithHosts> {
     let conn = &data.conn;
     let id = id.into_inner();
-    let form = form.into_inner();
-    Json(EventQuery::update(&conn, id, form).await.unwrap())
+    let json = json.into_inner();
+    Json(EventQuery::update(&conn, id, json).await.unwrap())
 }
 
 #[get("/organizations")]
