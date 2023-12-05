@@ -36,4 +36,14 @@ impl Related<super::event_organization::Entity> for Entity {
     }
 }
 
+// many-to-many relationship for Events and Organizations
+impl Related<super::organization::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::event_organization::Relation::Organization.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::event_organization::Relation::Event.def().rev())
+    }
+}
+
 impl ActiveModelBehavior for ActiveModel {}

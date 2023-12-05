@@ -1,7 +1,7 @@
-use crate::{service::*, AppState};
+use crate::{models::event, service::*, AppState};
 use actix_web::{
     get, post, put,
-    web::{Data, Json, Path},
+    web::{Data, Form, Json, Path},
     HttpResponse,
 };
 
@@ -17,23 +17,29 @@ async fn event_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
 }
 
 #[post("/events")]
-async fn event_create(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn event_create(data: Data<AppState>, form: Form<NewEventWithHosts>) -> Json<EventWithHosts> {
+    let conn = &data.conn;
+    let form = form.into_inner();
+    Json(EventQuery::create(&conn, form).await.unwrap())
 }
 
 #[get("/events/{id}")]
-async fn event_get(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn event_get(data: Data<AppState>, id: Path<i32>) -> Json<EventWithHosts> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(EventQuery::get(&conn, id).await.unwrap())
 }
 
 #[put("/events/{id}")]
-async fn event_update(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn event_update(
+    data: Data<AppState>,
+    id: Path<i32>,
+    form: Form<NewEventWithHosts>,
+) -> Json<EventWithHosts> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    let form = form.into_inner();
+    Json(EventQuery::update(&conn, id, form).await.unwrap())
 }
 
 #[get("/organizations")]
