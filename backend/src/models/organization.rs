@@ -41,4 +41,14 @@ impl Related<super::user_status::Entity> for Entity {
     }
 }
 
+// many-to-many relationship for Users and Organizations
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::user_status::Relation::User.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::user_status::Relation::Organization.def().rev())
+    }
+}
+
 impl ActiveModelBehavior for ActiveModel {}
