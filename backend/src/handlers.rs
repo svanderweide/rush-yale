@@ -1,7 +1,7 @@
-use crate::AppState;
+use crate::{service::*, AppState};
 use actix_web::{
     get, post, put,
-    web::{Data, Path},
+    web::{Data, Json, Path},
     HttpResponse,
 };
 
@@ -11,9 +11,9 @@ async fn health_check() -> HttpResponse {
 }
 
 #[get("/events")]
-async fn event_get_all_ids(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn event_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+    let conn = &data.conn;
+    Json(EventQuery::get_all_ids(&conn).await.unwrap())
 }
 
 #[post("/events")]
@@ -37,9 +37,9 @@ async fn event_update(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
 }
 
 #[get("/organizations")]
-async fn organization_get_all_ids(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn organization_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+    let conn = &data.conn;
+    Json(OrganizationQuery::get_all_ids(&conn).await.unwrap())
 }
 
 #[post("/organizations")]
@@ -97,9 +97,9 @@ async fn organization_update_user_status(
 }
 
 #[get("/threads")]
-async fn thread_get_all_ids(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn thread_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+    let conn = &data.conn;
+    Json(ThreadQuery::get_all_ids(&conn).await.unwrap())
 }
 
 #[post("/threads")]
@@ -123,9 +123,9 @@ async fn thread_create_message(data: Data<AppState>, id: Path<i32>) -> HttpRespo
 }
 
 #[get("/users")]
-async fn user_get_all_ids(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn user_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+    let conn = &data.conn;
+    Json(UserQuery::get_all_ids(&conn).await.unwrap())
 }
 
 #[post("/users")]
