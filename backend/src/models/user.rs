@@ -62,4 +62,24 @@ impl Related<super::user_status::Entity> for Entity {
     }
 }
 
+// many-to-many relationship for Users and Events
+impl Related<super::event::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::event_invitee::Relation::Event.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::event_invitee::Relation::User.def().rev())
+    }
+}
+
+// many-to-many relationship for Users and Threads
+impl Related<super::thread::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::thread_reader::Relation::Thread.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::thread_reader::Relation::User.def().rev())
+    }
+}
+
 impl ActiveModelBehavior for ActiveModel {}
