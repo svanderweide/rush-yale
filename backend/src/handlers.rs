@@ -43,23 +43,32 @@ async fn organization_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
 }
 
 #[post("/organizations")]
-async fn organization_create(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn organization_create(
+    data: Data<AppState>,
+    form: Form<organization::Model>,
+) -> Json<organization::Model> {
+    let conn = &data.conn;
+    let form = form.into_inner();
+    Json(OrganizationQuery::create(&conn, form).await.unwrap())
 }
 
 #[get("/organizations/{id}")]
-async fn organization_get(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn organization_get(data: Data<AppState>, id: Path<i32>) -> Json<organization::Model> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(OrganizationQuery::get(&conn, id).await.unwrap().unwrap())
 }
 
 #[put("/organizations/{id}")]
-async fn organization_update(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn organization_update(
+    data: Data<AppState>,
+    id: Path<i32>,
+    form: Form<organization::Model>,
+) -> Json<organization::Model> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    let form = form.into_inner();
+    Json(OrganizationQuery::update(&conn, id, form).await.unwrap())
 }
 
 #[get("/organizations/{id}/users")]
