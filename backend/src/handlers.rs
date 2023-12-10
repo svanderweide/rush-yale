@@ -1,3 +1,8 @@
+use crate::{
+    models::{event, organization, user, user_status, user_status_option},
+    service::*,
+    AppState,
+};
 use actix_identity::Identity;
 use actix_web::{
     get, post, put,
@@ -35,10 +40,11 @@ async fn login(req: HttpRequest, data: Data<AppState>, auth: Query<AuthResource>
             );
             let body = reqwest::get(cas_url).await.unwrap().text().await.unwrap();
             if body.contains("yes") {
-                // authorized!
+                // authenticated!
                 Identity::login(&req.extensions(), "netid".to_string()).unwrap();
                 Redirect::to("/health-check")
             } else {
+                // authentication failed!
                 Redirect::to("/login")
             }
         }
@@ -119,37 +125,57 @@ async fn organization_update(
 }
 
 #[get("/organizations/{id}/users")]
-async fn organization_get_all_users(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn organization_get_all_users(data: Data<AppState>, id: Path<i32>) -> Json<Vec<user::Model>> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(OrganizationQuery::get_users(&conn, id).await.unwrap())
 }
 
 #[get("/organization/{org_id}/users/{usr_id}")]
-async fn organization_get_user_status(data: Data<AppState>, ids: Path<(i32, i32)>) -> HttpResponse {
-    let _conn = &data.conn;
-    let (_org_id, _usr_id) = ids.into_inner();
-    todo!()
+async fn organization_get_user_status(
+    data: Data<AppState>,
+    ids: Path<(i32, i32)>,
+) -> Json<user_status_option::Model> {
+    let conn = &data.conn;
+    let (org_id, usr_id) = ids.into_inner();
+    Json(
+        OrganizationQuery::get_user_status(&conn, org_id, usr_id)
+            .await
+            .unwrap()
+            .unwrap(),
+    )
 }
 
 #[post("/organization/{org_id}/users/{usr_id}")]
 async fn organization_create_user_status(
     data: Data<AppState>,
     ids: Path<(i32, i32)>,
-) -> HttpResponse {
-    let _conn = &data.conn;
-    let (_org_id, _usr_id) = ids.into_inner();
-    todo!()
+    form: Form<user_status_option::Model>,
+) -> Json<user_status::Model> {
+    let conn = &data.conn;
+    let (org_id, usr_id) = ids.into_inner();
+    let form = form.into_inner();
+    Json(
+        OrganizationQuery::create_user_status(&conn, org_id, usr_id, form)
+            .await
+            .unwrap(),
+    )
 }
 
 #[put("/organization/{org_id}/users/{usr_id}")]
 async fn organization_update_user_status(
     data: Data<AppState>,
     ids: Path<(i32, i32)>,
-) -> HttpResponse {
-    let _conn = &data.conn;
-    let (_org_id, _usr_id) = ids.into_inner();
-    todo!()
+    form: Form<user_status_option::Model>,
+) -> Json<user_status::Model> {
+    let conn = &data.conn;
+    let (org_id, usr_id) = ids.into_inner();
+    let form = form.into_inner();
+    Json(
+        OrganizationQuery::update_user_status(&conn, org_id, usr_id, form)
+            .await
+            .unwrap(),
+    )
 }
 
 #[get("/threads")]
@@ -185,30 +211,36 @@ async fn user_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
 }
 
 #[post("/users")]
-async fn user_create(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn user_create(data: Data<AppState>, form: Form<user::Model>) -> Json<user::Model> {
+    let conn = &data.conn;
+    let form = form.into_inner();
+    Json(UserQuery::create(&conn, form).await.unwrap())
 }
 
 #[get("/users/{id}")]
-async fn user_get(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn user_get(data: Data<AppState>, id: Path<i32>) -> Json<user::Model> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(UserQuery::get(&conn, id).await.unwrap().unwrap())
 }
 
 #[put("/users/{id}")]
-async fn user_update(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn user_update(
+    data: Data<AppState>,
+    id: Path<i32>,
+    form: Form<user::Model>,
+) -> Json<user::Model> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    let form = form.into_inner();
+    Json(UserQuery::update(&conn, id, form).await.unwrap())
 }
 
 #[get("/users/{id}/events")]
-async fn user_get_events(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn user_get_events(data: Data<AppState>, id: Path<i32>) -> Json<Vec<event::Model>> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(UserQuery::get_events(&conn, id).await.unwrap())
 }
 
 #[get("/users/{id}/statuses")]
@@ -219,8 +251,8 @@ async fn user_get_statuses(data: Data<AppState>, id: Path<i32>) -> HttpResponse 
 }
 
 #[get("/users/{id}/threads")]
-async fn user_get_thread_ids(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn user_get_thread_ids(data: Data<AppState>, id: Path<i32>) -> Json<Vec<i32>> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(UserQuery::get_thread_ids(&conn, id).await.unwrap())
 }

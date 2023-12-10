@@ -2,7 +2,7 @@ use crate::models::{
     organization::{self, Entity as Organization},
     user::{self, Entity as User},
     user_status::{self, Entity as UserStatus},
-    user_status_option,
+    user_status_option::{self, Entity as UserStatusOption},
 };
 use sea_orm::*;
 
@@ -65,8 +65,14 @@ impl OrganizationQuery {
         db: &DbConn,
         org_id: i32,
         usr_id: i32,
-    ) -> Result<Option<user_status::Model>, DbErr> {
-        UserStatus::find_by_id((org_id, usr_id)).one(db).await
+    ) -> Result<Option<user_status_option::Model>, DbErr> {
+        UserStatus::find_by_id((org_id, usr_id))
+            .one(db)
+            .await?
+            .unwrap()
+            .find_related(UserStatusOption)
+            .one(db)
+            .await
     }
 
     pub async fn create_user_status(
@@ -90,7 +96,8 @@ impl OrganizationQuery {
         usr_id: i32,
         form: user_status_option::Model,
     ) -> Result<user_status::Model, DbErr> {
-        let user_status = OrganizationQuery::get_user_status(db, org_id, usr_id)
+        let user_status = UserStatus::find_by_id((org_id, usr_id))
+            .one(db)
             .await?
             .unwrap();
         user_status::ActiveModel {
@@ -98,7 +105,7 @@ impl OrganizationQuery {
             user_id: Unchanged(user_status.user_id),
             user_status_option_id: Set(form.id),
         }
-        .insert(db)
+        .update(db)
         .await
     }
 }
