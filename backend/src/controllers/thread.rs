@@ -36,7 +36,7 @@ impl ThreadControl {
         Thread::find()
             .select_only()
             .column(thread::Column::Id)
-            .into_tuple::<i32>()
+            .into_tuple()
             .all(db)
             .await
     }
@@ -92,13 +92,13 @@ impl ThreadControl {
         // find readers
         let readers = thread
             .find_linked(thread::ThreadToThreadReader)
-            .into_tuple::<i32>()
+            .into_tuple()
             .all(db)
             .await?;
         // find writers
         let writers = thread
             .find_linked(thread::ThreadToThreadWriter)
-            .into_tuple::<i32>()
+            .into_tuple()
             .all(db)
             .await?;
         // return response
