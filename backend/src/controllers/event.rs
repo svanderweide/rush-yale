@@ -6,24 +6,25 @@ use crate::models::{
 use sea_orm::*;
 use serde::{Deserialize, Serialize};
 
-pub struct EventQuery;
+pub struct EventControl;
 
 #[derive(Serialize)]
-pub struct EventWithHosts {
+pub struct EventResponse {
     #[serde(flatten)]
     event: event::Model,
     hosts: Vec<organization::Model>,
 }
 
 #[derive(Deserialize)]
-pub struct NewEventWithHosts {
+pub struct EventParams {
     #[serde(flatten)]
     event: event::Model,
     hosts: Vec<i32>,
 }
 
-impl EventQuery {
-    pub async fn get_all_ids(db: &DbConn) -> Result<Vec<i32>, DbErr> {
+impl EventControl {
+    /// retrieves the IDs of all events in the database
+    pub async fn get_event_ids(db: &DbConn) -> Result<Vec<i32>, DbErr> {
         Event::find()
             .select_only()
             .column(event::Column::Id)
@@ -32,7 +33,8 @@ impl EventQuery {
             .await
     }
 
-    pub async fn create(db: &DbConn, json: NewEventWithHosts) -> Result<EventWithHosts, DbErr> {
+    /// creates a new event in the database
+    pub async fn create_event(db: &DbConn, json: EventParams) -> Result<EventResponse, DbErr> {
         // begin transaction
         let txn = db.begin().await?;
         // create event!
@@ -58,28 +60,43 @@ impl EventQuery {
         .await?;
         // commit transaction
         txn.commit().await?;
-        EventQuery::get(db, event.id).await
+        // find the event and return
+        EventControl::get_event_by_id(db, event.id).await
     }
 
-    pub async fn get(db: &DbConn, id: i32) -> Result<EventWithHosts, DbErr> {
+    /// retrieves the information for an event with the requested id
+    pub async fn get_event_by_id(db: &DbConn, id: i32) -> Result<EventResponse, DbErr> {
         let event = Event::find_by_id(id).one(db).await?.unwrap();
         let hosts = event.find_related(Organization).all(db).await?;
-        Ok(EventWithHosts { event, hosts })
+        Ok(EventResponse { event, hosts })
     }
 
-    pub async fn update(
+    /// retrieves the information for multiple events with the requested ids
+    pub async fn get_events_by_id(db: &DbConn, ids: Vec<i32>) -> Result<Vec<EventResponse>, DbErr> {
+        let events = Event::find()
+            .filter(event::Column::Id.is_in(ids))
+            .find_with_related(Organization)
+            .all(db)
+            .await?;
+        Ok(events
+            .into_iter()
+            .map(|(event, hosts)| EventResponse { event, hosts })
+            .collect())
+    }
+
+    /// updates the information for the event with the requested id
+    pub async fn update_event(
         db: &DbConn,
         id: i32,
-        json: NewEventWithHosts,
-    ) -> Result<EventWithHosts, DbErr> {
+        json: EventParams,
+    ) -> Result<EventResponse, DbErr> {
         // get event and hosts
-        let stored = EventQuery::get(&db, id).await?;
-        let event = stored.event;
+        let stored = EventControl::get_event_by_id(&db, id).await?;
         // begin transaction
         let txn = db.begin().await?;
         // update event!
         let event = event::ActiveModel {
-            id: Unchanged(event.id),
+            id: Unchanged(stored.event.id),
             name: Set(json.event.name.to_owned()),
             description: Set(json.event.description.to_owned()),
             location: Set(json.event.location.to_owned()),
@@ -105,6 +122,7 @@ impl EventQuery {
         .await?;
         // commit transaction
         txn.commit().await?;
-        EventQuery::get(db, event.id).await
+        // find the event and return
+        EventControl::get_event_by_id(db, event.id).await
     }
 }

@@ -62,33 +62,33 @@ async fn logout(user: Identity) -> HttpResponse {
 #[get("/events")]
 async fn event_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
     let conn = &data.conn;
-    Json(EventQuery::get_all_ids(&conn).await.unwrap())
+    Json(EventControl::get_event_ids(&conn).await.unwrap())
 }
 
 #[post("/events")]
-async fn event_create(data: Data<AppState>, json: Json<NewEventWithHosts>) -> Json<EventWithHosts> {
+async fn event_create(data: Data<AppState>, json: Json<EventParams>) -> Json<EventResponse> {
     let conn = &data.conn;
     let json = json.into_inner();
-    Json(EventQuery::create(&conn, json).await.unwrap())
+    Json(EventControl::create_event(&conn, json).await.unwrap())
 }
 
 #[get("/events/{id}")]
-async fn event_get(data: Data<AppState>, id: Path<i32>) -> Json<EventWithHosts> {
+async fn event_get(data: Data<AppState>, id: Path<i32>) -> Json<EventResponse> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(EventQuery::get(&conn, id).await.unwrap())
+    Json(EventControl::get_event_by_id(&conn, id).await.unwrap())
 }
 
 #[put("/events/{id}")]
 async fn event_update(
     data: Data<AppState>,
     id: Path<i32>,
-    json: Json<NewEventWithHosts>,
-) -> Json<EventWithHosts> {
+    json: Json<EventParams>,
+) -> Json<EventResponse> {
     let conn = &data.conn;
     let id = id.into_inner();
     let json = json.into_inner();
-    Json(EventQuery::update(&conn, id, json).await.unwrap())
+    Json(EventControl::update_event(&conn, id, json).await.unwrap())
 }
 
 #[get("/threads")]
