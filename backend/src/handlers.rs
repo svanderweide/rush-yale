@@ -35,17 +35,19 @@ async fn login(req: HttpRequest, data: Data<AppState>, auth: Query<AuthResource>
         Some(ticket) => {
             // CAS authentication
             let cas_url = format!(
-                "https://secure6.its.yale.edu/cas/validate?service=https://{}/login&ticket={}",
+                "https://secure6.its.yale.edu/cas/validate?service=https://{}/api/auth/login&ticket={}",
                 &data.base_url, ticket
             );
             let body = reqwest::get(cas_url).await.unwrap().text().await.unwrap();
-            if body.contains("yes") {
-                // authenticated!
-                Identity::login(&req.extensions(), "netid".to_string()).unwrap();
-                Redirect::to("/health-check")
-            } else {
-                // authentication failed!
-                Redirect::to("/login")
+            // result format = "yes\n<netid>\n" or "no\n\n"
+            match body.lines().nth(1) {
+                // authentication success!
+                Some(netid) => {
+                    Identity::login(&req.extensions(), netid.to_owned()).unwrap();
+                    Redirect::to("/health-check")
+                }
+                // authentication failure!
+                None => Redirect::to("/login"),
             }
         }
     }
@@ -140,15 +142,17 @@ async fn thread_get_messages(
 
 #[post("/threads/{id}/messages")]
 async fn thread_create_message(
+    netid: Identity,
     data: Data<AppState>,
     id: Path<i32>,
     contents: Json<String>,
 ) -> Json<ThreadMessageResponse> {
+    let netid = netid.id().unwrap();
     let conn = &data.conn;
     let id = id.into_inner();
     let contents = contents.into_inner();
     Json(
-        ThreadControl::create_thread_message(&conn, id, contents)
+        ThreadControl::create_thread_message(&conn, id, contents, netid)
             .await
             .unwrap(),
     )

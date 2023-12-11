@@ -189,12 +189,19 @@ impl ThreadControl {
         db: &DbConn,
         id: i32,
         contents: String,
+        netid: String,
     ) -> Result<ThreadMessageResponse, DbErr> {
         // find thread
         let thread = Thread::find_by_id(id).one(db).await?.unwrap();
+        // find user with netid
+        let user = User::find()
+            .filter(user::Column::Netid.eq(netid))
+            .one(db)
+            .await?
+            .unwrap();
         // create message
         let message = thread_message::ActiveModel {
-            sender_id: Set(1),
+            sender_id: Set(user.id),
             thread_id: Set(thread.id),
             contents: Set(contents),
             ..Default::default()
