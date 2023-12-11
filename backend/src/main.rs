@@ -3,9 +3,9 @@ use actix_session::{storage::CookieSessionStore, SessionMiddleware};
 use actix_web::{cookie::Key, web, App, HttpServer};
 use sea_orm::{Database, DatabaseConnection};
 
+mod controllers;
 mod handlers;
 mod models;
-mod service;
 mod tls;
 
 use handlers::*;
