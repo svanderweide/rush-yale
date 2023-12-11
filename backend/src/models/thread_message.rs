@@ -10,6 +10,7 @@ pub struct Model {
     #[serde(skip_deserializing)]
     pub id: i32,
     pub thread_id: i32,
+    #[serde(skip_serializing)]
     pub sender_id: i32,
     pub contents: String,
     pub time: Option<DateTimeUtc>,

@@ -89,119 +89,69 @@ async fn event_update(
     Json(EventQuery::update(&conn, id, json).await.unwrap())
 }
 
-#[get("/organizations")]
-async fn organization_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
-    let conn = &data.conn;
-    Json(OrganizationQuery::get_all_ids(&conn).await.unwrap())
-}
-
-#[post("/organizations")]
-async fn organization_create(
-    data: Data<AppState>,
-    form: Form<organization::Model>,
-) -> Json<organization::Model> {
-    let conn = &data.conn;
-    let form = form.into_inner();
-    Json(OrganizationQuery::create(&conn, form).await.unwrap())
-}
-
-#[get("/organizations/{id}")]
-async fn organization_get(data: Data<AppState>, id: Path<i32>) -> Json<organization::Model> {
-    let conn = &data.conn;
-    let id = id.into_inner();
-    Json(OrganizationQuery::get(&conn, id).await.unwrap().unwrap())
-}
-
-#[put("/organizations/{id}")]
-async fn organization_update(
-    data: Data<AppState>,
-    id: Path<i32>,
-    form: Form<organization::Model>,
-) -> Json<organization::Model> {
-    let conn = &data.conn;
-    let id = id.into_inner();
-    let form = form.into_inner();
-    Json(OrganizationQuery::update(&conn, id, form).await.unwrap())
-}
-
-#[get("/organizations/{id}/users")]
-async fn organization_get_all_users(data: Data<AppState>, id: Path<i32>) -> Json<Vec<user::Model>> {
-    let conn = &data.conn;
-    let id = id.into_inner();
-    Json(OrganizationQuery::get_users(&conn, id).await.unwrap())
-}
-
-#[get("/organization/{org_id}/users/{usr_id}")]
-async fn organization_get_user_status(
-    data: Data<AppState>,
-    ids: Path<(i32, i32)>,
-) -> Json<user_status_option::Model> {
-    let conn = &data.conn;
-    let (org_id, usr_id) = ids.into_inner();
-    Json(
-        OrganizationQuery::get_user_status(&conn, org_id, usr_id)
-            .await
-            .unwrap()
-            .unwrap(),
-    )
-}
-
-#[post("/organization/{org_id}/users/{usr_id}")]
-async fn organization_create_user_status(
-    data: Data<AppState>,
-    ids: Path<(i32, i32)>,
-    form: Form<user_status_option::Model>,
-) -> Json<user_status::Model> {
-    let conn = &data.conn;
-    let (org_id, usr_id) = ids.into_inner();
-    let form = form.into_inner();
-    Json(
-        OrganizationQuery::create_user_status(&conn, org_id, usr_id, form)
-            .await
-            .unwrap(),
-    )
-}
-
-#[put("/organization/{org_id}/users/{usr_id}")]
-async fn organization_update_user_status(
-    data: Data<AppState>,
-    ids: Path<(i32, i32)>,
-    form: Form<user_status_option::Model>,
-) -> Json<user_status::Model> {
-    let conn = &data.conn;
-    let (org_id, usr_id) = ids.into_inner();
-    let form = form.into_inner();
-    Json(
-        OrganizationQuery::update_user_status(&conn, org_id, usr_id, form)
-            .await
-            .unwrap(),
-    )
-}
-
 #[get("/threads")]
 async fn thread_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
     let conn = &data.conn;
-    Json(ThreadQuery::get_all_ids(&conn).await.unwrap())
+    Json(ThreadControl::get_thread_ids(&conn).await.unwrap())
 }
 
 #[post("/threads")]
-async fn thread_create(data: Data<AppState>) -> HttpResponse {
-    let _conn = &data.conn;
-    todo!()
+async fn thread_create(
+    data: Data<AppState>,
+    metadata: Json<ThreadMetadata>,
+) -> Json<ThreadResponse> {
+    let conn = &data.conn;
+    let metadata = metadata.into_inner();
+    Json(ThreadControl::create_thread(&conn, metadata).await.unwrap())
 }
 
 #[get("/threads/{id}")]
-async fn thread_get(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+async fn thread_get(data: Data<AppState>, id: Path<i32>) -> Json<ThreadResponse> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(ThreadControl::get_thread_metadata(&conn, id).await.unwrap())
 }
 
-#[post("/threads/{id}")]
-async fn thread_create_message(data: Data<AppState>, id: Path<i32>) -> HttpResponse {
-    let _conn = &data.conn;
-    let _id = id.into_inner();
-    todo!()
+#[put("/threads/{id}")]
+async fn thread_update(
+    data: Data<AppState>,
+    id: Path<i32>,
+    metadata: Json<ThreadMetadata>,
+) -> Json<ThreadResponse> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    let metadata = metadata.into_inner();
+    Json(
+        ThreadControl::update_thread_metadata(&conn, id, metadata)
+            .await
+            .unwrap(),
+    )
+}
+
+#[get("/threads/{id}/messages")]
+async fn thread_get_messages(
+    data: Data<AppState>,
+    id: Path<i32>,
+) -> Json<Vec<ThreadMessageResponse>> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(ThreadControl::get_thread_messages(&conn, id).await.unwrap())
+}
+
+#[post("/threads/{id}/messages")]
+async fn thread_create_message(
+    data: Data<AppState>,
+    id: Path<i32>,
+    contents: Json<String>,
+) -> Json<ThreadMessageResponse> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    let contents = contents.into_inner();
+    Json(
+        ThreadControl::create_thread_message(&conn, id, contents)
+            .await
+            .unwrap(),
+    )
 }
 
 #[get("/users")]

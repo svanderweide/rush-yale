@@ -3,6 +3,8 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use crate::models::{thread_reader, thread_writer, user};
+
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "thread")]
 pub struct Model {
@@ -35,6 +37,36 @@ impl Related<super::thread_reader::Entity> for Entity {
 impl Related<super::thread_writer::Entity> for Entity {
     fn to() -> RelationDef {
         Relation::ThreadWriter.def()
+    }
+}
+
+pub struct ThreadToThreadReader;
+
+impl Linked for ThreadToThreadReader {
+    type FromEntity = Entity;
+
+    type ToEntity = user::Entity;
+
+    fn link(&self) -> Vec<RelationDef> {
+        vec![
+            thread_reader::Relation::Thread.def().rev(),
+            thread_reader::Relation::User.def(),
+        ]
+    }
+}
+
+pub struct ThreadToThreadWriter;
+
+impl Linked for ThreadToThreadWriter {
+    type FromEntity = Entity;
+
+    type ToEntity = user::Entity;
+
+    fn link(&self) -> Vec<RelationDef> {
+        vec![
+            thread_writer::Relation::Thread.def().rev(),
+            thread_writer::Relation::User.def(),
+        ]
     }
 }
 
