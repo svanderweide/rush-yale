@@ -4,6 +4,7 @@ use actix_web::{cookie::Key, web, App, HttpServer};
 use sea_orm::{Database, DatabaseConnection};
 
 mod controllers;
+mod errors;
 mod models;
 mod routes;
 mod tls;

@@ -1,5 +1,6 @@
 use crate::{
     controllers::{EventControl, EventParams, EventResponse},
+    errors::Error,
     AppState,
 };
 use actix_web::{
@@ -16,23 +17,29 @@ pub fn event_config(cfg: &mut ServiceConfig) {
 }
 
 #[get("")]
-async fn event_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+async fn event_get_all_ids(data: Data<AppState>) -> Result<Json<Vec<i32>>, Error> {
     let conn = &data.conn;
-    Json(EventControl::get_event_ids(&conn).await.unwrap())
+    let ids = EventControl::get_event_ids(&conn).await?;
+    Ok(Json(ids))
 }
 
 #[post("")]
-async fn event_create(data: Data<AppState>, json: Json<EventParams>) -> Json<EventResponse> {
+async fn event_create(
+    data: Data<AppState>,
+    json: Json<EventParams>,
+) -> Result<Json<EventResponse>, Error> {
     let conn = &data.conn;
     let json = json.into_inner();
-    Json(EventControl::create_event(&conn, json).await.unwrap())
+    let event = EventControl::create_event(&conn, json).await?;
+    Ok(Json(event))
 }
 
 #[get("/{id}")]
-async fn event_get(data: Data<AppState>, id: Path<i32>) -> Json<EventResponse> {
+async fn event_get(data: Data<AppState>, id: Path<i32>) -> Result<Json<EventResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(EventControl::get_event_by_id(&conn, id).await.unwrap())
+    let event = EventControl::get_event_by_id(&conn, id).await?;
+    Ok(Json(event))
 }
 
 #[put("/{id}")]
@@ -40,9 +47,10 @@ async fn event_update(
     data: Data<AppState>,
     id: Path<i32>,
     json: Json<EventParams>,
-) -> Json<EventResponse> {
+) -> Result<Json<EventResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
     let json = json.into_inner();
-    Json(EventControl::update_event(&conn, id, json).await.unwrap())
+    let event = EventControl::update_event(&conn, id, json).await?;
+    Ok(Json(event))
 }

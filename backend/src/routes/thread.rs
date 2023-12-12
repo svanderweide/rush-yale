@@ -2,6 +2,7 @@ use crate::{
     controllers::{
         ThreadControl, ThreadMessageParams, ThreadMessageResponse, ThreadParams, ThreadResponse,
     },
+    errors::Error,
     AppState,
 };
 use actix_web::{
@@ -20,23 +21,29 @@ pub fn thread_config(cfg: &mut ServiceConfig) {
 }
 
 #[get("")]
-async fn thread_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+async fn thread_get_all_ids(data: Data<AppState>) -> Result<Json<Vec<i32>>, Error> {
     let conn = &data.conn;
-    Json(ThreadControl::get_thread_ids(&conn).await.unwrap())
+    let ids = ThreadControl::get_thread_ids(&conn).await?;
+    Ok(Json(ids))
 }
 
 #[post("")]
-async fn thread_create(data: Data<AppState>, json: Json<ThreadParams>) -> Json<ThreadResponse> {
+async fn thread_create(
+    data: Data<AppState>,
+    json: Json<ThreadParams>,
+) -> Result<Json<ThreadResponse>, Error> {
     let conn = &data.conn;
     let json = json.into_inner();
-    Json(ThreadControl::create_thread(&conn, json).await.unwrap())
+    let thread = ThreadControl::create_thread(&conn, json).await?;
+    Ok(Json(thread))
 }
 
 #[get("/{id}")]
-async fn thread_get(data: Data<AppState>, id: Path<i32>) -> Json<ThreadResponse> {
+async fn thread_get(data: Data<AppState>, id: Path<i32>) -> Result<Json<ThreadResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(ThreadControl::get_thread_metadata(&conn, id).await.unwrap())
+    let thread_metadata = ThreadControl::get_thread_metadata(&conn, id).await?;
+    Ok(Json(thread_metadata))
 }
 
 #[put("/{id}")]
@@ -44,25 +51,23 @@ async fn thread_update(
     data: Data<AppState>,
     id: Path<i32>,
     json: Json<ThreadParams>,
-) -> Json<ThreadResponse> {
+) -> Result<Json<ThreadResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
     let json = json.into_inner();
-    Json(
-        ThreadControl::update_thread_metadata(&conn, id, json)
-            .await
-            .unwrap(),
-    )
+    let thread_metadata = ThreadControl::update_thread_metadata(&conn, id, json).await?;
+    Ok(Json(thread_metadata))
 }
 
 #[get("/{id}/messages")]
 async fn thread_get_messages(
     data: Data<AppState>,
     id: Path<i32>,
-) -> Json<Vec<ThreadMessageResponse>> {
+) -> Result<Json<Vec<ThreadMessageResponse>>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(ThreadControl::get_thread_messages(&conn, id).await.unwrap())
+    let thread_messages = ThreadControl::get_thread_messages(&conn, id).await?;
+    Ok(Json(thread_messages))
 }
 
 #[post("/{id}/messages")]
@@ -70,13 +75,10 @@ async fn thread_create_message(
     data: Data<AppState>,
     id: Path<i32>,
     json: Json<ThreadMessageParams>,
-) -> Json<ThreadMessageResponse> {
+) -> Result<Json<ThreadMessageResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
     let json = json.into_inner();
-    Json(
-        ThreadControl::create_thread_message(&conn, id, json)
-            .await
-            .unwrap(),
-    )
+    let thread_message = ThreadControl::create_thread_message(&conn, id, json).await?;
+    Ok(Json(thread_message))
 }

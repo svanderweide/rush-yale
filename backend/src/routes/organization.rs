@@ -3,6 +3,7 @@ use crate::{
         EventResponse, OrganizationControl, OrganizationParams, OrganizationResponse,
         OrganizationUserStatus,
     },
+    errors::Error,
     AppState,
 };
 use actix_web::{
@@ -24,38 +25,32 @@ pub fn organization_config(cfg: &mut ServiceConfig) {
 }
 
 #[get("")]
-async fn organization_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+async fn organization_get_all_ids(data: Data<AppState>) -> Result<Json<Vec<i32>>, Error> {
     let conn = &data.conn;
-    Json(
-        OrganizationControl::get_organization_ids(&conn)
-            .await
-            .unwrap(),
-    )
+    let ids = OrganizationControl::get_organization_ids(&conn).await?;
+    Ok(Json(ids))
 }
 
 #[post("")]
 async fn organization_create(
     data: Data<AppState>,
     json: Json<OrganizationParams>,
-) -> Json<OrganizationResponse> {
+) -> Result<Json<OrganizationResponse>, Error> {
     let conn = &data.conn;
     let json = json.into_inner();
-    Json(
-        OrganizationControl::create_organization(&conn, json)
-            .await
-            .unwrap(),
-    )
+    let organization = OrganizationControl::create_organization(&conn, json).await?;
+    Ok(Json(organization))
 }
 
 #[get("/{id}")]
-async fn organization_get(data: Data<AppState>, id: Path<i32>) -> Json<OrganizationResponse> {
+async fn organization_get(
+    data: Data<AppState>,
+    id: Path<i32>,
+) -> Result<Json<OrganizationResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(
-        OrganizationControl::get_organization_by_id(&conn, id)
-            .await
-            .unwrap(),
-    )
+    let organization = OrganizationControl::get_organization_by_id(&conn, id).await?;
+    Ok(Json(organization))
 }
 
 #[put("/{id}")]
@@ -63,54 +58,45 @@ async fn organization_update(
     data: Data<AppState>,
     id: Path<i32>,
     json: Json<OrganizationParams>,
-) -> Json<OrganizationResponse> {
+) -> Result<Json<OrganizationResponse>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
     let json = json.into_inner();
-    Json(
-        OrganizationControl::update_organization(&conn, id, json)
-            .await
-            .unwrap(),
-    )
+    let organization = OrganizationControl::update_organization(&conn, id, json).await?;
+    Ok(Json(organization))
 }
 
 #[get("/{id}/events")]
-async fn organization_get_events(data: Data<AppState>, id: Path<i32>) -> Json<Vec<EventResponse>> {
+async fn organization_get_events(
+    data: Data<AppState>,
+    id: Path<i32>,
+) -> Result<Json<Vec<EventResponse>>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(
-        OrganizationControl::get_organization_events(&conn, id)
-            .await
-            .unwrap(),
-    )
+    let events = OrganizationControl::get_organization_events(&conn, id).await?;
+    Ok(Json(events))
 }
 
 #[get("/{id}/users")]
 async fn organization_get_users(
     data: Data<AppState>,
     id: Path<i32>,
-) -> Json<Vec<OrganizationUserStatus>> {
+) -> Result<Json<Vec<OrganizationUserStatus>>, Error> {
     let conn = &data.conn;
     let id = id.into_inner();
-    Json(
-        OrganizationControl::get_organization_users(&conn, id)
-            .await
-            .unwrap(),
-    )
+    let users = OrganizationControl::get_organization_users(&conn, id).await?;
+    Ok(Json(users))
 }
 
 #[get("/{org_id}/users/{usr_id}")]
 async fn organization_get_user_status(
     data: Data<AppState>,
     ids: Path<(i32, i32)>,
-) -> Json<OrganizationUserStatus> {
+) -> Result<Json<OrganizationUserStatus>, Error> {
     let conn = &data.conn;
     let (org_id, usr_id) = ids.into_inner();
-    Json(
-        OrganizationControl::get_user_status(&conn, org_id, usr_id)
-            .await
-            .unwrap(),
-    )
+    let user_status = OrganizationControl::get_user_status(&conn, org_id, usr_id).await?;
+    Ok(Json(user_status))
 }
 
 #[post("/{org_id}/users/{usr_id}")]
@@ -118,15 +104,12 @@ async fn organization_create_user_status(
     data: Data<AppState>,
     ids: Path<(i32, i32)>,
     json: Json<i32>,
-) -> Json<OrganizationUserStatus> {
+) -> Result<Json<OrganizationUserStatus>, Error> {
     let conn = &data.conn;
     let (org_id, usr_id) = ids.into_inner();
     let json = json.into_inner();
-    Json(
-        OrganizationControl::create_user_status(&conn, org_id, usr_id, json)
-            .await
-            .unwrap(),
-    )
+    let user_status = OrganizationControl::create_user_status(&conn, org_id, usr_id, json).await?;
+    Ok(Json(user_status))
 }
 
 #[put("/{org_id}/users/{usr_id}")]
@@ -134,13 +117,10 @@ async fn organization_update_user_status(
     data: Data<AppState>,
     ids: Path<(i32, i32)>,
     json: Json<i32>,
-) -> Json<OrganizationUserStatus> {
+) -> Result<Json<OrganizationUserStatus>, Error> {
     let conn = &data.conn;
     let (org_id, usr_id) = ids.into_inner();
     let json = json.into_inner();
-    Json(
-        OrganizationControl::update_user_status(&conn, org_id, usr_id, json)
-            .await
-            .unwrap(),
-    )
+    let user_status = OrganizationControl::update_user_status(&conn, org_id, usr_id, json).await?;
+    Ok(Json(user_status))
 }
