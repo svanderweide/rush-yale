@@ -6,6 +6,7 @@ use crate::models::{
     user_status::{self, Entity as UserStatus},
     user_status_option::{self, Entity as UserStatusOption},
 };
+use futures::stream::{self, StreamExt};
 use sea_orm::*;
 use serde::Serialize;
 
@@ -92,30 +93,27 @@ impl UserControl {
             .filter(user_status::Column::UserId.eq(id))
             .all(db)
             .await?;
-        // extract the User IDs and the StatusOption IDs
-        let org_ids = user_statuses.iter().map(|status| status.organization_id);
-        let opts_ids = user_statuses
-            .iter()
-            .map(|status| status.user_status_option_id);
-        // find organizations
-        let organizations = Organization::find()
-            .filter(organization::Column::Id.is_in(org_ids))
-            .all(db)
-            .await?;
-        // find status options
-        let statuses = UserStatusOption::find()
-            .filter(user_status_option::Column::Id.is_in(opts_ids))
-            .all(db)
-            .await?;
-        // return response
-        Ok(organizations
-            .into_iter()
-            .zip(statuses.into_iter())
-            .map(|(organization, status)| UserOrganizationStatus {
-                organization,
-                status,
+        // find organization and status for each UserStatus
+        // O(n) in the number of UserStatus entities
+        Ok(stream::iter(user_statuses)
+            .then(|user_status| async move {
+                let organization = Organization::find_by_id(user_status.organization_id)
+                    .one(db)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                let status = UserStatusOption::find_by_id(user_status.user_status_option_id)
+                    .one(db)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                UserOrganizationStatus {
+                    organization,
+                    status,
+                }
             })
-            .collect())
+            .collect::<Vec<UserOrganizationStatus>>()
+            .await)
     }
 
     pub async fn get_user_thread_ids(db: &DbConn, id: i32) -> Result<Vec<i32>, DbErr> {
