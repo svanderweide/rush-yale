@@ -36,6 +36,16 @@ impl Related<super::event_organization::Entity> for Entity {
     }
 }
 
+// many-to-many relationship for Events and Users
+impl Related<super::user::Entity> for Entity {
+    fn to() -> RelationDef {
+        super::event_invitee::Relation::User.def()
+    }
+    fn via() -> Option<RelationDef> {
+        Some(super::event_invitee::Relation::Event.def().rev())
+    }
+}
+
 // many-to-many relationship for Events and Organizations
 impl Related<super::organization::Entity> for Entity {
     fn to() -> RelationDef {

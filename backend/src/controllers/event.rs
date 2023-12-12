@@ -1,8 +1,11 @@
 use crate::models::{
     event::{self, Entity as Event},
+    event_invitee::{self, Entity as EventInvitee},
     event_organization::{self, Entity as EventOrganization},
     organization::{self, Entity as Organization},
+    user::{self, Entity as User},
 };
+use futures::stream::{self, StreamExt};
 use sea_orm::*;
 use serde::{Deserialize, Serialize};
 
@@ -13,6 +16,7 @@ pub struct EventResponse {
     #[serde(flatten)]
     event: event::Model,
     hosts: Vec<organization::Model>,
+    invitees: Vec<i32>,
 }
 
 #[derive(Deserialize)]
@@ -20,6 +24,7 @@ pub struct EventParams {
     #[serde(flatten)]
     event: event::Model,
     hosts: Vec<i32>,
+    invitees: Vec<i32>,
 }
 
 impl EventControl {
@@ -58,6 +63,18 @@ impl EventControl {
         }))
         .exec(&txn)
         .await?;
+        // add invitees! (only users)
+        EventInvitee::insert_many(
+            data.invitees
+                .into_iter()
+                .map(|id| event_invitee::ActiveModel {
+                    event_id: Set(event.id),
+                    user_id: Set(id),
+                    ..Default::default()
+                }),
+        )
+        .exec(&txn)
+        .await?;
         // commit transaction
         txn.commit().await?;
         // find the event and return
@@ -68,20 +85,47 @@ impl EventControl {
     pub async fn get_event_by_id(db: &DbConn, id: i32) -> Result<EventResponse, DbErr> {
         let event = Event::find_by_id(id).one(db).await?.unwrap();
         let hosts = event.find_related(Organization).all(db).await?;
-        Ok(EventResponse { event, hosts })
+        let invitees = event
+            .find_related(User)
+            .select_only()
+            .column(user::Column::Id)
+            .into_tuple()
+            .all(db)
+            .await?;
+        Ok(EventResponse {
+            event,
+            hosts,
+            invitees,
+        })
     }
 
     /// retrieves the information for multiple events with the requested ids
     pub async fn get_events_by_id(db: &DbConn, ids: Vec<i32>) -> Result<Vec<EventResponse>, DbErr> {
         let events = Event::find()
             .filter(event::Column::Id.is_in(ids))
-            .find_with_related(Organization)
             .all(db)
             .await?;
-        Ok(events
-            .into_iter()
-            .map(|(event, hosts)| EventResponse { event, hosts })
-            .collect())
+        // find hosts and invitees for each Event requested
+        // O(n) in the number of Event entities
+        Ok(stream::iter(events)
+            .then(|event| async move {
+                let hosts = event.find_related(Organization).all(db).await.unwrap();
+                let invitees = event
+                    .find_related(User)
+                    .select_only()
+                    .column(user::Column::Id)
+                    .into_tuple()
+                    .all(db)
+                    .await
+                    .unwrap();
+                EventResponse {
+                    event,
+                    hosts,
+                    invitees,
+                }
+            })
+            .collect()
+            .await)
     }
 
     /// updates the information for the event with the requested id
@@ -118,6 +162,23 @@ impl EventControl {
                 ..Default::default()
             }
         }))
+        .exec(&txn)
+        .await?;
+        // remove current invitees
+        EventInvitee::delete_many()
+            .filter(event_organization::Column::EventId.eq(event.id))
+            .exec(&txn)
+            .await?;
+        // add new invitees!
+        EventInvitee::insert_many(
+            data.invitees
+                .into_iter()
+                .map(|id| event_invitee::ActiveModel {
+                    event_id: Set(event.id),
+                    user_id: Set(id),
+                    ..Default::default()
+                }),
+        )
         .exec(&txn)
         .await?;
         // commit transaction
