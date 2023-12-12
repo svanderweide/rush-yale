@@ -112,7 +112,7 @@ impl UserControl {
                     status,
                 }
             })
-            .collect::<Vec<UserOrganizationStatus>>()
+            .collect()
             .await)
     }
 

@@ -116,7 +116,7 @@ impl OrganizationControl {
                     .unwrap();
                 OrganizationUserStatus { user, status }
             })
-            .collect::<Vec<OrganizationUserStatus>>()
+            .collect()
             .await)
     }
 
