@@ -40,7 +40,7 @@ async fn login(req: HttpRequest, data: Data<AppState>, auth: Query<AuthResource>
                 // authentication success!
                 Some(netid) => {
                     Identity::login(&req.extensions(), netid.to_owned()).unwrap();
-                    Redirect::to("/health-check")
+                    Redirect::to("/logout")
                 }
                 // authentication failure!
                 None => Redirect::to("/login"),
