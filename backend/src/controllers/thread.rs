@@ -9,7 +9,7 @@ use sea_orm::*;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Deserialize)]
-pub struct ThreadMetadata {
+pub struct ThreadParams {
     readers: Vec<i32>,
     writers: Vec<i32>,
 }
@@ -28,6 +28,12 @@ pub struct ThreadMessageResponse {
     message: thread_message::Model,
 }
 
+#[derive(Debug, Deserialize)]
+pub struct ThreadMessageParams {
+    sender_id: i32,
+    contents: String,
+}
+
 pub struct ThreadControl;
 
 impl ThreadControl {
@@ -42,7 +48,7 @@ impl ThreadControl {
     }
 
     /// creates a new thread in the database
-    pub async fn create_thread(db: &DbConn, data: ThreadMetadata) -> Result<ThreadResponse, DbErr> {
+    pub async fn create_thread(db: &DbConn, data: ThreadParams) -> Result<ThreadResponse, DbErr> {
         // begin transaction
         let txn = db.begin().await?;
         // create thread
@@ -113,7 +119,7 @@ impl ThreadControl {
     pub async fn update_thread_metadata(
         db: &DbConn,
         id: i32,
-        data: ThreadMetadata,
+        data: ThreadParams,
     ) -> Result<ThreadResponse, DbErr> {
         // find thread
         let thread = Thread::find_by_id(id).one(db).await?.unwrap();
@@ -188,22 +194,17 @@ impl ThreadControl {
     pub async fn create_thread_message(
         db: &DbConn,
         id: i32,
-        contents: String,
-        netid: String,
+        data: ThreadMessageParams,
     ) -> Result<ThreadMessageResponse, DbErr> {
         // find thread
         let thread = Thread::find_by_id(id).one(db).await?.unwrap();
-        // find user with netid
-        let user = User::find()
-            .filter(user::Column::Netid.eq(netid))
-            .one(db)
-            .await?
-            .unwrap();
+        // find user with id
+        let user = User::find_by_id(data.sender_id).one(db).await?.unwrap();
         // create message
         let message = thread_message::ActiveModel {
             sender_id: Set(user.id),
             thread_id: Set(thread.id),
-            contents: Set(contents),
+            contents: Set(data.contents),
             ..Default::default()
         }
         .insert(db)
