@@ -4,6 +4,7 @@ use crate::models::{
     user_status::{self, Entity as UserStatus},
     user_status_option::{self, Entity as UserStatusOption},
 };
+use futures::stream::{self, StreamExt};
 use sea_orm::*;
 use serde::Serialize;
 
@@ -99,27 +100,24 @@ impl OrganizationControl {
             .filter(user_status::Column::OrganizationId.eq(id))
             .all(db)
             .await?;
-        // extract the User IDs and the StatusOption IDs
-        let user_ids = user_statuses.iter().map(|status| status.user_id);
-        let opts_ids = user_statuses
-            .iter()
-            .map(|status| status.user_status_option_id);
-        // find users
-        let users = User::find()
-            .filter(user::Column::Id.is_in(user_ids))
-            .all(db)
-            .await?;
-        // find status options
-        let statuses = UserStatusOption::find()
-            .filter(user_status_option::Column::Id.is_in(opts_ids))
-            .all(db)
-            .await?;
-        // return response
-        Ok(users
-            .into_iter()
-            .zip(statuses.into_iter())
-            .map(|(user, status)| OrganizationUserStatus { user, status })
-            .collect())
+        // find user and status for each UserStatus
+        // O(n) in the number of UserStatus entities
+        Ok(stream::iter(user_statuses)
+            .then(|user_status| async move {
+                let user = User::find_by_id(user_status.user_id)
+                    .one(db)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                let status = UserStatusOption::find_by_id(user_status.user_status_option_id)
+                    .one(db)
+                    .await
+                    .unwrap()
+                    .unwrap();
+                OrganizationUserStatus { user, status }
+            })
+            .collect::<Vec<OrganizationUserStatus>>()
+            .await)
     }
 
     pub async fn get_user_status(
@@ -181,7 +179,7 @@ impl OrganizationControl {
             .one(db)
             .await?
             .unwrap();
-        // create UserStatus for (user, organization) tuple
+        // update UserStatus for (user, organization) tuple
         let status = user_status::ActiveModel {
             organization_id: Unchanged(status.organization_id),
             user_id: Unchanged(status.user_id),
