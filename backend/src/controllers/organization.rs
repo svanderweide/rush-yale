@@ -80,13 +80,13 @@ impl OrganizationControl {
         // find organization
         let organization = OrganizationControl::get_organization_by_id(db, id).await?;
         // find IDs of hosted events
-        let hosted_event_ids = organization
+        let event_ids = organization
             .find_linked(OrganizationToEvent)
-            .into_tuple::<i32>()
+            .into_tuple()
             .all(db)
             .await?;
         // delegate to EventControl
-        EventControl::get_events_by_id(db, hosted_event_ids).await
+        EventControl::get_events_by_id(db, event_ids).await
     }
 
     /// retrieves the status of all users with a status with the organization with the requested id

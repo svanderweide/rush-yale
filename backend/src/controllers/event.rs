@@ -28,28 +28,28 @@ impl EventControl {
         Event::find()
             .select_only()
             .column(event::Column::Id)
-            .into_tuple::<i32>()
+            .into_tuple()
             .all(db)
             .await
     }
 
     /// creates a new event in the database
-    pub async fn create_event(db: &DbConn, json: EventParams) -> Result<EventResponse, DbErr> {
+    pub async fn create_event(db: &DbConn, data: EventParams) -> Result<EventResponse, DbErr> {
         // begin transaction
         let txn = db.begin().await?;
         // create event!
         let event = event::ActiveModel {
-            name: Set(json.event.name.to_owned()),
-            description: Set(json.event.description.to_owned()),
-            location: Set(json.event.location.to_owned()),
-            start_time: Set(json.event.start_time.to_owned()),
-            end_time: Set(json.event.end_time.to_owned()),
+            name: Set(data.event.name.to_owned()),
+            description: Set(data.event.description.to_owned()),
+            location: Set(data.event.location.to_owned()),
+            start_time: Set(data.event.start_time.to_owned()),
+            end_time: Set(data.event.end_time.to_owned()),
             ..Default::default()
         }
         .insert(&txn)
         .await?;
         // add hosts!
-        EventOrganization::insert_many(json.hosts.into_iter().map(|id| {
+        EventOrganization::insert_many(data.hosts.into_iter().map(|id| {
             event_organization::ActiveModel {
                 event_id: Set(event.id),
                 organization_id: Set(id),
@@ -88,7 +88,7 @@ impl EventControl {
     pub async fn update_event(
         db: &DbConn,
         id: i32,
-        json: EventParams,
+        data: EventParams,
     ) -> Result<EventResponse, DbErr> {
         // get event and hosts
         let stored = EventControl::get_event_by_id(&db, id).await?;
@@ -97,11 +97,11 @@ impl EventControl {
         // update event!
         let event = event::ActiveModel {
             id: Unchanged(stored.event.id),
-            name: Set(json.event.name.to_owned()),
-            description: Set(json.event.description.to_owned()),
-            location: Set(json.event.location.to_owned()),
-            start_time: Set(json.event.start_time.to_owned()),
-            end_time: Set(json.event.end_time.to_owned()),
+            name: Set(data.event.name.to_owned()),
+            description: Set(data.event.description.to_owned()),
+            location: Set(data.event.location.to_owned()),
+            start_time: Set(data.event.start_time.to_owned()),
+            end_time: Set(data.event.end_time.to_owned()),
         }
         .update(&txn)
         .await?;
@@ -111,7 +111,7 @@ impl EventControl {
             .exec(&txn)
             .await?;
         // add new hosts!
-        EventOrganization::insert_many(json.hosts.into_iter().map(|id| {
+        EventOrganization::insert_many(data.hosts.into_iter().map(|id| {
             event_organization::ActiveModel {
                 event_id: Set(event.id),
                 organization_id: Set(id),

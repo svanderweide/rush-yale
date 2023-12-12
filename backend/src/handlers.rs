@@ -216,13 +216,10 @@ async fn thread_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
 }
 
 #[post("/threads")]
-async fn thread_create(
-    data: Data<AppState>,
-    metadata: Json<ThreadMetadata>,
-) -> Json<ThreadResponse> {
+async fn thread_create(data: Data<AppState>, json: Json<ThreadMetadata>) -> Json<ThreadResponse> {
     let conn = &data.conn;
-    let metadata = metadata.into_inner();
-    Json(ThreadControl::create_thread(&conn, metadata).await.unwrap())
+    let json = json.into_inner();
+    Json(ThreadControl::create_thread(&conn, json).await.unwrap())
 }
 
 #[get("/threads/{id}")]
@@ -236,13 +233,13 @@ async fn thread_get(data: Data<AppState>, id: Path<i32>) -> Json<ThreadResponse>
 async fn thread_update(
     data: Data<AppState>,
     id: Path<i32>,
-    metadata: Json<ThreadMetadata>,
+    json: Json<ThreadMetadata>,
 ) -> Json<ThreadResponse> {
     let conn = &data.conn;
     let id = id.into_inner();
-    let metadata = metadata.into_inner();
+    let json = json.into_inner();
     Json(
-        ThreadControl::update_thread_metadata(&conn, id, metadata)
+        ThreadControl::update_thread_metadata(&conn, id, json)
             .await
             .unwrap(),
     )
@@ -263,14 +260,14 @@ async fn thread_create_message(
     netid: Identity,
     data: Data<AppState>,
     id: Path<i32>,
-    contents: Json<String>,
+    json: Json<String>,
 ) -> Json<ThreadMessageResponse> {
     let netid = netid.id().unwrap();
     let conn = &data.conn;
     let id = id.into_inner();
-    let contents = contents.into_inner();
+    let json = json.into_inner();
     Json(
-        ThreadControl::create_thread_message(&conn, id, contents, netid)
+        ThreadControl::create_thread_message(&conn, id, json, netid)
             .await
             .unwrap(),
     )
