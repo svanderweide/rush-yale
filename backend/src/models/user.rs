@@ -15,7 +15,7 @@ pub struct Model {
     pub first_name: String,
     pub last_name: String,
     pub email: String,
-    pub address: String,
+    pub location: String,
 }
 
 #[derive(Copy, Clone, Debug, EnumIter, DeriveRelation)]
