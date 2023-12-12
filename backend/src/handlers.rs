@@ -24,7 +24,7 @@ async fn login(req: HttpRequest, data: Data<AppState>, auth: Query<AuthResource>
         None => {
             // CAS authentication
             Redirect::to(format!(
-                "https://secure6.its.yale.edu/cas/login?service=https://{}/login",
+                "https://secure6.its.yale.edu/cas/login?service=https://{}/api/auth/login",
                 &data.base_url
             ))
         }
