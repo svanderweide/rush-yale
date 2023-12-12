@@ -1,12 +1,8 @@
-use crate::{
-    models::{event, organization, user, user_status, user_status_option},
-    service::*,
-    AppState,
-};
+use crate::{controllers::*, AppState};
 use actix_identity::Identity;
 use actix_web::{
     get, post, put,
-    web::{Data, Form, Json, Path, Query, Redirect},
+    web::{Data, Json, Path, Query, Redirect},
     HttpMessage, HttpRequest, HttpResponse,
 };
 use serde::Deserialize;
@@ -89,6 +85,128 @@ async fn event_update(
     let id = id.into_inner();
     let json = json.into_inner();
     Json(EventControl::update_event(&conn, id, json).await.unwrap())
+}
+
+#[get("/organizations")]
+async fn organization_get_all_ids(data: Data<AppState>) -> Json<Vec<i32>> {
+    let conn = &data.conn;
+    Json(
+        OrganizationControl::get_organization_ids(&conn)
+            .await
+            .unwrap(),
+    )
+}
+
+#[post("/organizations")]
+async fn organization_create(
+    data: Data<AppState>,
+    json: Json<OrganizationParams>,
+) -> Json<OrganizationResponse> {
+    let conn = &data.conn;
+    let json = json.into_inner();
+    Json(
+        OrganizationControl::create_organization(&conn, json)
+            .await
+            .unwrap(),
+    )
+}
+
+#[get("/organizations/{id}")]
+async fn organization_get(data: Data<AppState>, id: Path<i32>) -> Json<OrganizationResponse> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(
+        OrganizationControl::get_organization_by_id(&conn, id)
+            .await
+            .unwrap(),
+    )
+}
+
+#[put("/organizations/{id}")]
+async fn organization_update(
+    data: Data<AppState>,
+    id: Path<i32>,
+    json: Json<OrganizationParams>,
+) -> Json<OrganizationResponse> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    let json = json.into_inner();
+    Json(
+        OrganizationControl::update_organization(&conn, id, json)
+            .await
+            .unwrap(),
+    )
+}
+
+#[get("/organizations/{id}/events")]
+async fn organization_get_events(data: Data<AppState>, id: Path<i32>) -> Json<Vec<EventResponse>> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(
+        OrganizationControl::get_organization_events(&conn, id)
+            .await
+            .unwrap(),
+    )
+}
+
+#[get("/organizations/{id}/users")]
+async fn organization_get_users(
+    data: Data<AppState>,
+    id: Path<i32>,
+) -> Json<Vec<OrganizationUserStatus>> {
+    let conn = &data.conn;
+    let id = id.into_inner();
+    Json(
+        OrganizationControl::get_organization_users(&conn, id)
+            .await
+            .unwrap(),
+    )
+}
+
+#[get("/organizations/{org_id}/users/{usr_id}")]
+async fn organization_get_user_status(
+    data: Data<AppState>,
+    ids: Path<(i32, i32)>,
+) -> Json<OrganizationUserStatus> {
+    let conn = &data.conn;
+    let (org_id, usr_id) = ids.into_inner();
+    Json(
+        OrganizationControl::get_user_status(&conn, org_id, usr_id)
+            .await
+            .unwrap(),
+    )
+}
+
+#[post("/organizations/{org_id}/users/{usr_id}")]
+async fn organization_create_user_status(
+    data: Data<AppState>,
+    ids: Path<(i32, i32)>,
+    json: Json<i32>,
+) -> Json<OrganizationUserStatus> {
+    let conn = &data.conn;
+    let (org_id, usr_id) = ids.into_inner();
+    let json = json.into_inner();
+    Json(
+        OrganizationControl::create_user_status(&conn, org_id, usr_id, json)
+            .await
+            .unwrap(),
+    )
+}
+
+#[put("/organizations/{org_id}/users/{usr_id}")]
+async fn organization_update_user_status(
+    data: Data<AppState>,
+    ids: Path<(i32, i32)>,
+    json: Json<i32>,
+) -> Json<OrganizationUserStatus> {
+    let conn = &data.conn;
+    let (org_id, usr_id) = ids.into_inner();
+    let json = json.into_inner();
+    Json(
+        OrganizationControl::update_user_status(&conn, org_id, usr_id, json)
+            .await
+            .unwrap(),
+    )
 }
 
 #[get("/threads")]

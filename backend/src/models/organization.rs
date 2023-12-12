@@ -3,6 +3,9 @@
 use sea_orm::entity::prelude::*;
 use serde::{Deserialize, Serialize};
 
+use super::event;
+use crate::models::event_organization;
+
 #[derive(Clone, Debug, PartialEq, DeriveEntityModel, Eq, Serialize, Deserialize)]
 #[sea_orm(table_name = "organization")]
 pub struct Model {
@@ -48,6 +51,20 @@ impl Related<super::user::Entity> for Entity {
     }
     fn via() -> Option<RelationDef> {
         Some(super::user_status::Relation::Organization.def().rev())
+    }
+}
+
+pub struct OrganizationToEvent;
+
+impl Linked for OrganizationToEvent {
+    type FromEntity = Entity;
+    type ToEntity = event::Entity;
+
+    fn link(&self) -> Vec<RelationDef> {
+        vec![
+            event_organization::Relation::Organization.def().rev(),
+            event_organization::Relation::Event.def(),
+        ]
     }
 }
 
