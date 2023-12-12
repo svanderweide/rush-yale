@@ -27,7 +27,9 @@ async fn main() -> std::io::Result<()> {
     let base_url = format!("{}:{}", host, port);
 
     // set up database connection
-    let conn = Database::connect(&db_url).await.unwrap();
+    let conn = Database::connect(&db_url)
+        .await
+        .expect("unable to connect to database");
 
     // create app state
     let state = AppState { conn, base_url };
