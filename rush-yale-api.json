@@ -382,9 +382,9 @@
   "components": {
     "parameters": {
       "idParam": {
-        "name": "i32",
+        "name": "id",
         "in": "path",
-        "description": "i32 to be queried",
+        "description": "id to be queried",
         "required": true,
         "schema": {
           "$ref": "#/components/schemas/i32"
