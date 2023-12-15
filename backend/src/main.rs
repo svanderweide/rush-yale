@@ -1,6 +1,7 @@
+use actix_cors::Cors;
 use actix_identity::IdentityMiddleware;
 use actix_session::{storage::CookieSessionStore, SessionMiddleware};
-use actix_web::{cookie::Key, web, App, HttpServer};
+use actix_web::{cookie::Key, http, web, App, HttpServer};
 use sea_orm::{Database, DatabaseConnection};
 
 mod controllers;
@@ -40,12 +41,19 @@ async fn main() -> std::io::Result<()> {
 
     // serve backend
     HttpServer::new(move || {
+        // create CORS middleware
+        let cors = Cors::default()
+            .allow_any_origin()
+            .allowed_headers(vec![http::header::ACCEPT, http::header::CONTENT_TYPE]);
+
+        // create session middleware
+        let session = SessionMiddleware::new(CookieSessionStore::default(), Key::generate());
+
+        // create web application
         App::new()
+            .wrap(cors)
             .wrap(IdentityMiddleware::default())
-            .wrap(SessionMiddleware::new(
-                CookieSessionStore::default(),
-                Key::generate(),
-            ))
+            .wrap(session)
             .service(
                 web::scope("/api")
                     .service(
