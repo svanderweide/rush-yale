@@ -1,361 +1,870 @@
 {
+  "openapi": "3.0.2",
+  "info": {
+    "title": "Rush Yale API",
+    "version": "1.0"
+  },
+  "servers": [
+    {
+      "url": "https://localhost:8000/api",
+      "description": "dev"
+    }
+  ],
+  "paths": {
+    "/events": {
+      "get": {
+        "description": "Retrieves the IDs of all events.",
+        "operationId": "Event.GetAllIDs",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/i32ArrResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new event.",
+        "operationId": "Event.Create",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/eventRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/eventResponse"
+          }
+        }
+      }
+    },
+    "/events/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the information for event with id {id}.",
+        "operationId": "Event.Get",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/eventResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the information for event with id {id}.",
+        "operationId": "Event.Update",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/eventRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/eventResponse"
+          }
+        }
+      }
+    },
+    "/organizations": {
+      "get": {
+        "description": "Retrieves the IDs of all organizations.",
+        "operationId": "Organization.GetAllIDs",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/i32ArrResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new organization.",
+        "operationId": "Organization.Create",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/organizationRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationResponse"
+          }
+        }
+      }
+    },
+    "/organizations/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the information for organization with id {id}.",
+        "operationId": "Organization.Get",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the information for organization with id {id}.",
+        "operationId": "Organization.Update",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/organizationRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationResponse"
+          }
+        }
+      }
+    },
+    "/organizations/{id}/events": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the events hosted by organization with id {id}.",
+        "operationId": "Organization.GetEvents",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/eventArrResponse"
+          }
+        }
+      }
+    },
+    "/organizations/{id}/users": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the users and statuses for organization with id {id}.",
+        "operationId": "Organization.GetUsers",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationStatusArrResponse"
+          }
+        }
+      }
+    },
+    "/organizations/{org_id}/users/{usr_id}": {
+      "parameters": [
+        {
+          "name": "org_id",
+          "in": "path",
+          "description": "organization i32 to be queried",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/i32"
+          }
+        },
+        {
+          "name": "usr_id",
+          "in": "path",
+          "description": "user i32 to be queried",
+          "required": true,
+          "schema": {
+            "$ref": "#/components/schemas/i32"
+          }
+        }
+      ],
+      "get": {
+        "description": "Retrieves the user status for user {usr_id} with organization {org_id}.",
+        "operationId": "Status.Get",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationStatusResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates the user status for user {usr_id} with organization {org_id}.",
+        "operationId": "Status.Create",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/organizationStatusRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationStatusResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Update the user status for user {usr_id} with organization {org_id}.",
+        "operationId": "Status.Update",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/organizationStatusRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/organizationStatusResponse"
+          }
+        }
+      }
+    },
+    "/threads": {
+      "get": {
+        "description": "Retrieves the IDs of all threads.",
+        "operationId": "Thread.GetAllIDs",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/i32ArrResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new thread.",
+        "operationId": "Thread.Create",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/threadRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/threadResponse"
+          }
+        }
+      }
+    },
+    "/threads/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the information for thread with id {id}.",
+        "operationId": "Thread.Get",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/threadResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the information for thread with id {id}.",
+        "operationId": "Thread.Update",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/threadRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/threadResponse"
+          }
+        }
+      }
+    },
+    "/threads/{id}/messages": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves all messages for the thread with id {id}.",
+        "operationId": "Thread.GetMessages",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/threadMessageArrResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new message on the thread with id {id}.",
+        "operationId": "Thread.CreateMessage",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/threadMessageRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/threadMessageResponse"
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "description": "Retrieves the IDs of all users.",
+        "operationId": "User.GetAllIDs",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/i32ArrResponse"
+          }
+        }
+      },
+      "post": {
+        "description": "Creates a new user.",
+        "operationId": "User.Create",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/userRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/userResponse"
+          }
+        }
+      }
+    },
+    "/users/{id}": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the information for user with id {id}.",
+        "operationId": "User.Get",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/userResponse"
+          }
+        }
+      },
+      "put": {
+        "description": "Updates the information for user with id {id}.",
+        "operationId": "User.Update",
+        "requestBody": {
+          "$ref": "#/components/requestBodies/userRequestBody"
+        },
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/userResponse"
+          }
+        }
+      }
+    },
+    "/users/{id}/events": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the events for user with id {id}.",
+        "operationId": "User.GetEvents",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/eventArrResponse"
+          }
+        }
+      }
+    },
+    "/users/{id}/statuses": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the statuses for user with id {id} with their organizations.",
+        "operationId": "User.GetStatuses",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/userStatusArrResponse"
+          }
+        }
+      }
+    },
+    "/users/{id}/threads": {
+      "parameters": [
+        {
+          "$ref": "#/components/parameters/idParam"
+        }
+      ],
+      "get": {
+        "description": "Retrieves the IDs of all readable threads for the user with id {id}.",
+        "operationId": "User.GetThreadIDs",
+        "responses": {
+          "200": {
+            "$ref": "#/components/responses/i32ArrResponse"
+          }
+        }
+      }
+    }
+  },
   "components": {
     "parameters": {
-      "eventParam": {
-        "description": "ID of the event to be queried",
+      "idParam": {
+        "name": "i32",
         "in": "path",
-        "name": "id",
+        "description": "i32 to be queried",
         "required": true,
         "schema": {
-          "format": "int32",
-          "minimum": 0,
-          "type": "integer"
+          "$ref": "#/components/schemas/i32"
+        }
+      }
+    },
+    "requestBodies": {
+      "eventRequestBody": {
+        "description": "A new event's information",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/EventParams"
+            }
+          }
         }
       },
-      "organizationParam": {
-        "description": "ID of the organization to be queried",
-        "in": "path",
-        "name": "id",
-        "required": true,
-        "schema": {
-          "format": "int32",
-          "minimum": 0,
-          "type": "integer"
+      "organizationRequestBody": {
+        "description": "A new organization's information",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/OrganizationParams"
+            }
+          }
         }
       },
-      "threadParam": {
-        "description": "ID of the organization to be queried",
-        "in": "path",
-        "name": "id",
-        "required": true,
-        "schema": {
-          "format": "int32",
-          "minimum": 0,
-          "type": "integer"
+      "organizationStatusRequestBody": {
+        "description": "A new status for a user with an organization",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/i32"
+            }
+          }
         }
       },
-      "userParam": {
-        "description": "ID of the user to be queried",
-        "in": "path",
-        "name": "id",
-        "required": true,
-        "schema": {
-          "format": "int32",
-          "minimum": 0,
-          "type": "integer"
+      "threadRequestBody": {
+        "description": "A new thread's information",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ThreadParams"
+            }
+          }
+        }
+      },
+      "threadMessageRequestBody": {
+        "description": "A new thread message's information",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMessageParams"
+            }
+          }
+        }
+      },
+      "userRequestBody": {
+        "description": "A new user's information",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UserParams"
+            }
+          }
         }
       }
     },
     "responses": {
-      "errorResponse": {
+      "i32ArrResponse": {
+        "description": "A list of IDs",
         "content": {
           "application/json": {
             "schema": {
-              "properties": {
-                "code": {
-                  "format": "int64",
-                  "type": "integer"
-                },
-                "message": {
-                  "type": "string"
-                }
-              },
-              "type": "object"
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/i32"
+              }
             }
           }
-        },
-        "description": "Error response."
+        }
+      },
+      "eventResponse": {
+        "description": "An event",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Event"
+            }
+          }
+        }
+      },
+      "eventArrResponse": {
+        "description": "An list of events",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Event"
+              }
+            }
+          }
+        }
+      },
+      "organizationResponse": {
+        "description": "An organization",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Organization"
+            }
+          }
+        }
+      },
+      "organizationStatusResponse": {
+        "description": "A user's status with an organization (organization's perspective)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/UserWithStatus"
+            }
+          }
+        }
+      },
+      "organizationStatusArrResponse": {
+        "description": "A list of user statuses with an organization (organization's perspective)",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/UserWithStatus"
+              }
+            }
+          }
+        }
+      },
+      "threadResponse": {
+        "description": "A thread",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/Thread"
+            }
+          }
+        }
+      },
+      "threadMessageResponse": {
+        "description": "A thread message",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ThreadMessage"
+            }
+          }
+        }
+      },
+      "threadMessageArrResponse": {
+        "description": "A list of thread messages",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ThreadMessage"
+              }
+            }
+          }
+        }
+      },
+      "userResponse": {
+        "description": "A user",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/User"
+            }
+          }
+        }
+      },
+      "userArrResponse": {
+        "description": "A list of users",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          }
+        }
+      },
+      "userStatusResponse": {
+        "description": "A user's status with an organization (user's perspective).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/OrganizationWithStatus"
+            }
+          }
+        }
+      },
+      "userStatusArrResponse": {
+        "description": "A user's status with all their organization (user's perspective).",
+        "content": {
+          "application/json": {
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/OrganizationWithStatus"
+              }
+            }
+          }
+        }
       }
     },
     "schemas": {
-      "Event": {
-        "example": {
-          "description": null,
-          "end-time": "2023-09-13T19:00:00Z",
-          "hosts": [
-            {
-              "email": "rushootb@gmail.com",
-              "id": 0,
-              "name": "Out of the Blue"
-            }
-          ],
-          "id": 0,
-          "location": "OBT",
-          "name": "Out of the Blue",
-          "start-time": "2023-09-13T18:00:00Z"
-        },
-        "properties": {
-          "description": {
-            "nullable": true,
-            "type": "string"
-          },
-          "end-time": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "hosts": {
-            "items": {
-              "$ref": "#/components/schemas/Organization"
-            },
-            "type": "array"
-          },
-          "id": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
-          },
-          "location": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "start-time": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "type": "object"
+      "i32": {
+        "type": "integer",
+        "format": "int32",
+        "minimum": 0
       },
-      "EventUpdate": {
-        "example": {
-          "description": null,
-          "end-time": "2023-09-13T19:00:00Z",
-          "hosts": [
-            {
-              "email": "rushootb@gmail.com",
-              "id": 0,
-              "name": "Out of the Blue"
-            }
-          ],
-          "location": "OBT",
-          "name": "Out of the Blue",
-          "start-time": "2023-09-13T18:00:00Z"
-        },
+      "EventParams": {
+        "type": "object",
         "properties": {
+          "name": {
+            "type": "string"
+          },
           "description": {
-            "nullable": true,
             "type": "string"
-          },
-          "end-time": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "hosts": {
-            "items": {
-              "$ref": "#/components/schemas/Organization"
-            },
-            "type": "array"
           },
           "location": {
             "type": "string"
           },
-          "name": {
+          "start_time": {
             "type": "string"
           },
-          "start-time": {
-            "format": "date-time",
+          "end_time": {
             "type": "string"
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/i32"
+            }
+          },
+          "invitees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/i32"
+            }
           }
         },
         "required": [
-          "hosts",
           "name",
+          "description",
           "location",
-          "start-time",
-          "end-time"
-        ],
-        "type": "object"
+          "start_time",
+          "end_time",
+          "hosts",
+          "invitees"
+        ]
+      },
+      "Event": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/i32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          },
+          "location": {
+            "type": "string"
+          },
+          "start_time": {
+            "type": "string"
+          },
+          "end_time": {
+            "type": "string"
+          },
+          "hosts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Organization"
+            }
+          },
+          "invitees": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/i32"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "description",
+          "location",
+          "start_time",
+          "end_time",
+          "hosts",
+          "invitees"
+        ]
+      },
+      "OrganizationParams": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": ["name", "email"]
       },
       "Organization": {
-        "example": {
-          "email": "rushootb@gmail.com",
-          "id": 0,
-          "name": "Out of the Blue"
-        },
+        "type": "object",
         "properties": {
-          "email": {
-            "type": "string"
-          },
           "id": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
+            "$ref": "#/components/schemas/i32"
           },
           "name": {
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "OrganizationUpdate": {
-        "example": {
-          "email": "rushootb@gmail.com",
-          "name": "Out of the Blue"
-        },
-        "properties": {
+          },
           "email": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           }
         },
-        "required": [
-          "name",
-          "email"
-        ],
-        "type": "object"
+        "required": ["id", "name", "email"]
       },
-      "OrganizationUserStatus": {
-        "example": {
-          "status": {
-            "id": 0,
-            "name": "derush"
-          },
-          "user": {
-            "email": "simon.vanderweide@yale.edu",
-            "first-name": "Simon",
-            "id": 0,
-            "last-name": "Van Der Weide",
-            "location": "Saybrook",
-            "netid": "smv32"
-          }
-        },
+      "UserWithStatus": {
+        "type": "object",
         "properties": {
-          "organization": {
+          "user": {
             "$ref": "#/components/schemas/User"
           },
           "status": {
             "$ref": "#/components/schemas/Status"
           }
         },
-        "type": "object"
+        "required": ["user", "status"]
       },
-      "Status": {
-        "example": {
-          "id": 0,
-          "name": "derush"
-        },
+      "ThreadParams": {
+        "type": "object",
         "properties": {
-          "id": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
+          "readers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/i32"
+            }
           },
-          "name": {
-            "type": "string"
+          "writers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/i32"
+            }
           }
         },
-        "type": "object"
+        "required": ["readers", "writers"]
       },
       "Thread": {
-        "example": {
-          "messages": [
-            {
-              "contents": "Congratulations on your pre-tap from Out of the Blue!",
-              "id": 0,
-              "sender": {
-                "email": "simon.vanderweide@yale.edu",
-                "first-name": "Simon",
-                "id": 0,
-                "last-name": "Van Der Weide",
-                "location": "Saybrook",
-                "netid": "smv32"
-              },
-              "timestamp": "2023-09-18T08:00:00Z"
-            }
-          ]
-        },
+        "type": "object",
         "properties": {
-          "messages": {
+          "id": {
+            "$ref": "#/components/schemas/i32"
+          },
+          "readers": {
+            "type": "array",
             "items": {
-              "$ref": "#/components/schemas/ThreadMessage"
-            },
-            "type": "array"
+              "$ref": "#/components/schemas/i32"
+            }
+          },
+          "writers": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/i32"
+            }
           }
         },
-        "type": "object"
+        "required": ["readers", "writers"]
+      },
+      "ThreadMessageParams": {
+        "type": "object",
+        "properties": {
+          "sender_id": {
+            "$ref": "#/components/schemas/i32"
+          },
+          "contents": {
+            "type": "string"
+          }
+        },
+        "required": ["sender_id", "contents"]
       },
       "ThreadMessage": {
-        "example": {
-          "contents": "Congratulations on your pre-tap from Out of the Blue!",
-          "id": 0,
-          "sender": {
-            "email": "simon.vanderweide@yale.edu",
-            "first-name": "Simon",
-            "id": 0,
-            "last-name": "Van Der Weide",
-            "location": "Saybrook",
-            "netid": "smv32"
-          },
-          "timestamp": "2023-09-18T08:00:00Z"
-        },
+        "type": "object",
         "properties": {
-          "contents": {
-            "maxLength": 255,
-            "type": "string"
-          },
           "id": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
+            "$ref": "#/components/schemas/i32"
+          },
+          "thread_id": {
+            "$ref": "#/components/schemas/i32"
           },
           "sender": {
             "$ref": "#/components/schemas/User"
           },
-          "timestamp": {
-            "format": "date-time",
+          "contents": {
             "type": "string"
+          },
+          "time": {
+            "type": "string",
+            "format": "datetime"
           }
         },
-        "type": "object"
+        "required": ["id", "thread_id", "sender", "contents", "time"]
       },
-      "User": {
-        "example": {
-          "email": "simon.vanderweide@yale.edu",
-          "first-name": "Simon",
-          "id": 0,
-          "last-name": "Van Der Weide",
-          "location": "Saybrook",
-          "netid": "smv32"
-        },
+      "UserParams": {
+        "type": "object",
         "properties": {
+          "netid": {
+            "type": "string"
+          },
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
           "email": {
-            "type": "string"
-          },
-          "first-name": {
-            "type": "string"
-          },
-          "id": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
-          },
-          "last-name": {
-            "type": "string"
+            "type": "string",
+            "format": "email"
           },
           "location": {
             "type": "string"
+          }
+        },
+        "required": ["netid", "first_name", "last_name", "email", "location"]
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "$ref": "#/components/schemas/i32"
           },
           "netid": {
             "type": "string"
-          }
-        },
-        "type": "object"
-      },
-      "UserStatus": {
-        "example": {
-          "organization": {
-            "email": "rushootb@gmail.com",
-            "id": 0,
-            "name": "Out of the Blue"
           },
-          "status": {
-            "id": 0,
-            "name": "derush"
+          "first_name": {
+            "type": "string"
+          },
+          "last_name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "location": {
+            "type": "string"
           }
         },
+        "required": [
+          "id",
+          "netid",
+          "first_name",
+          "last_name",
+          "email",
+          "location"
+        ]
+      },
+      "OrganizationWithStatus": {
+        "type": "object",
         "properties": {
           "organization": {
             "$ref": "#/components/schemas/Organization"
@@ -364,714 +873,20 @@
             "$ref": "#/components/schemas/Status"
           }
         },
-        "type": "object"
+        "required": ["organization", "status"]
       },
-      "UserUpdate": {
-        "example": {
-          "email": "simon.vanderweide@yale.edu",
-          "first-name": "Simon",
-          "last-name": "Van Der Weide",
-          "location": "Saybrook"
-        },
+      "Status": {
+        "type": "object",
         "properties": {
-          "email": {
-            "type": "string"
+          "id": {
+            "$ref": "#/components/schemas/i32"
           },
-          "first-name": {
-            "type": "string"
-          },
-          "last-name": {
-            "type": "string"
-          },
-          "location": {
+          "name": {
             "type": "string"
           }
         },
-        "required": [
-          "first-name",
-          "last-name",
-          "location",
-          "email"
-        ],
-        "type": "object"
-      }
-    },
-    "securitySchemes": {
-      "cookieAuth": {
-        "in": "cookie",
-        "name": "id",
-        "type": "apiKey"
+        "required": ["id", "name"]
       }
     }
-  },
-  "info": {
-    "title": "Rush Yale API",
-    "version": "1.0.1"
-  },
-  "openapi": "3.0.2",
-  "paths": {
-    "/events": {
-      "get": {
-        "operationId": "Event.GetAllIDs",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "format": "int32",
-                    "minimum": 0,
-                    "type": "integer"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the IDs of all events."
-      },
-      "post": {
-        "operationId": "Event.Create",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/EventUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Event"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Creates a new event."
-      }
-    },
-    "/events/{id}": {
-      "get": {
-        "operationId": "Event.Get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Event"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the information of event {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/eventParam"
-        }
-      ],
-      "put": {
-        "operationId": "Event.Update",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/EventUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Event"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Updates the information of event {id}."
-      }
-    },
-    "/organizations": {
-      "get": {
-        "operationId": "Organization.GetAllIDs",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "format": "int32",
-                    "minimum": 0,
-                    "type": "integer"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the IDs of all organizations."
-      },
-      "post": {
-        "operationId": "Organization.Create",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/OrganizationUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Organization"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Creates a new organization."
-      }
-    },
-    "/organizations/{id}": {
-      "get": {
-        "operationId": "Organization.Get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Organization"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the information of organization {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/organizationParam"
-        }
-      ],
-      "put": {
-        "operationId": "Organization.Update",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/OrganizationUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Organization"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Updates the information of organization {id}."
-      }
-    },
-    "/organizations/{id}/users": {
-      "get": {
-        "operationId": "Organization.GetAllUsers",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/OrganizationUserStatus"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the status of all users who have a status for organization {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/organizationParam"
-        }
-      ]
-    },
-    "/organizations/{org_id}/users/{usr_id}": {
-      "get": {
-        "operationId": "Organization.GetUserStatus",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationUserStatus"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the status of user {usr_id} with organization {org_id}."
-      },
-      "parameters": [
-        {
-          "description": "ID of organization to be queried",
-          "in": "path",
-          "name": "org_id",
-          "required": true,
-          "schema": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
-          }
-        },
-        {
-          "description": "ID of user to be queried",
-          "in": "path",
-          "name": "usr_id",
-          "required": true,
-          "schema": {
-            "format": "int32",
-            "minimum": 0,
-            "type": "integer"
-          }
-        }
-      ],
-      "post": {
-        "operationId": "Organization.CreateUserStatus",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/Status"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationUserStatus"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Creates status for user {usr_id} with organization {org_id}."
-      },
-      "put": {
-        "operationId": "Organization.UpdateUserStatus",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/Status"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/OrganizationUserStatus"
-                }
-              }
-            },
-            "description": "Successful response."
-          }
-        },
-        "summary": "Updates the status of user {usr_id} with organization {org_id}."
-      }
-    },
-    "/threads": {
-      "get": {
-        "operationId": "Thread.GetAllIDs",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "format": "int32",
-                    "minimum": 0,
-                    "type": "integer"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the IDs of all threads."
-      },
-      "post": {
-        "operationId": "Thread.Create",
-        "requestBody": {
-          "content": {
-            "form/x-www-form-urlencoded": {
-              "schema": {
-                "items": {
-                  "format": "int32",
-                  "minimum": 0,
-                  "type": "integer"
-                },
-                "type": "array"
-              }
-            }
-          },
-          "description": "IDs of users to commmunicate on the new thread"
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "format": "int32",
-                  "minimum": 0,
-                  "type": "integer"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Creates a new thread."
-      }
-    },
-    "/threads/{id}": {
-      "get": {
-        "operationId": "Thread.Get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Thread"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the information of thread {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/threadParam"
-        }
-      ],
-      "post": {
-        "operationId": "Thread.CreateMessage",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "example": "Congratulations on your pre-tap from Out of the Blue!",
-              "schema": {
-                "maxLength": 255,
-                "type": "string"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ThreadMessage"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Creates a new message on thread {id}."
-      }
-    },
-    "/users": {
-      "get": {
-        "operationId": "User.GetAllIDs",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "format": "int32",
-                    "minimum": 0,
-                    "type": "integer"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the IDs of all users."
-      },
-      "post": {
-        "operationId": "User.Create",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/UserUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Creates a new user (netid captured from CAS)."
-      }
-    },
-    "/users/{id}": {
-      "get": {
-        "operationId": "User.Get",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the information of user {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/userParam"
-        }
-      ],
-      "put": {
-        "operationId": "User.Update",
-        "requestBody": {
-          "content": {
-            "application/x-www-form-urlencoded": {
-              "schema": {
-                "$ref": "#/components/schemas/UserUpdate"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/User"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Updates the information of user {id}."
-      }
-    },
-    "/users/{id}/events": {
-      "get": {
-        "operationId": "User.GetEvents",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/Event"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          }
-        },
-        "summary": "Returns the events visible to user {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/userParam"
-        }
-      ]
-    },
-    "/users/{id}/statuses": {
-      "get": {
-        "operationId": "User.GetAllStatuses",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "$ref": "#/components/schemas/UserStatus"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          },
-          "default": {
-            "$ref": "#/components/responses/errorResponse"
-          }
-        },
-        "summary": "Retrieves the status of user {id} with their organizations."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/userParam"
-        }
-      ]
-    },
-    "/users/{id}/threads": {
-      "get": {
-        "operationId": "User.GetThreadIDs",
-        "responses": {
-          "200": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "items": {
-                    "format": "int32",
-                    "minimum": 0,
-                    "type": "integer"
-                  },
-                  "type": "array"
-                }
-              }
-            },
-            "description": "Successful response."
-          }
-        },
-        "summary": "Returns the IDs of all threads visible to user {id}."
-      },
-      "parameters": [
-        {
-          "$ref": "#/components/parameters/userParam"
-        }
-      ]
-    }
-  },
-  "security": [
-    {
-      "cookieAuth": []
-    }
-  ],
-  "servers": [
-    {
-      "description": "dev",
-      "url": "https://localhost:8000/api"
-    }
-  ]
+  }
 }
